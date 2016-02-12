@@ -1,7 +1,6 @@
 /*jslint node: true */
 'use strict';
 
-var MemcacheHandler = require('../memcache-handler');
 var exception = require('../exception/exception.js');
 var http = require('http');
 
