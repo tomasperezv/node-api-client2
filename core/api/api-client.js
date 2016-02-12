@@ -140,9 +140,9 @@ ApiClient.prototype.GET = function(parameters, cacheKey, onComplete, useHTTPS) {
     }
 
     var options = {
-      host: this._baseUrl,
+      host: self._baseUrl,
       path: '?' + params.join('&'),
-      headers: this._headers
+      headers: self._headers
     };
 
     requestInterface.request(options, function(response) {
