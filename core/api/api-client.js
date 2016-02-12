@@ -153,6 +153,15 @@ ApiClient.prototype.GET = function(parameters, cacheKey, onComplete, useHTTPS) {
 };
 
 /**
+ * @method _getFilterObject
+ * @return {Object}
+ * @private
+ */
+ApiClient.prototype._getFilterObject = function() {
+  return require('../filter')(self._clientId);
+};
+
+/**
  * Reads a response once the HTTP request is performed.
  *
  * @method _readResponse
@@ -171,7 +180,7 @@ ApiClient.prototype._readResponse = function(response, cacheKey, onComplete) {
 
   response.on('end', function () {
 
-    var filter = require('../filter')(self._clientId);
+    var filter = self._getFilterObject();
     if (filter !== null) {
 
       var filteredData = filter.apply(data);
