@@ -72,10 +72,10 @@ ApiClient.prototype._setBasicAuth = function(username, password) {
 /**
  * @param {Object} parameters
  * @return {String}
- * @method _getUrl
+ * @method _getPath
  * @private
  */
-ApiClient.prototype._getUrl = function(parameters) {
+ApiClient.prototype._getPath = function(parameters) {
 
   var params = [];
   var addParams = function(paramsMap) {
@@ -89,7 +89,7 @@ ApiClient.prototype._getUrl = function(parameters) {
   addParams(this._defaultParameters);
   addParams(parameters);
 
-  return this._baseUrl + '?' + params.join('&');
+  return '?' + params.join('&');
 };
 
 /**
@@ -140,7 +140,7 @@ ApiClient.prototype.GET = function(parameters, cacheKey, onComplete, useHTTPS) {
 
     var options = {
       host: self._baseUrl,
-      path: '?' + params.join('&'),
+      path: self._getPath(parameters),
       headers: self._headers
     };
 
