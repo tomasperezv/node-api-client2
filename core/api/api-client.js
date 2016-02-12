@@ -67,7 +67,7 @@ var ApiClient = function() {
  * @see https://en.wikipedia.org/wiki/Basic_access_authentication
  */
 ApiClient.prototype._setBasicAuth = function(username, password) {
-  this._headers['Authorization'] = 'Basic ' + btoa(username + password);
+  this._headers['Authorization'] = 'Basic ' + new Buffer(username + password).toString('base64');
 };
 
 /**
