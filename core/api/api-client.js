@@ -43,12 +43,31 @@ var ApiClient = function() {
   this._baseUrl = '';
 
   /**
+   * @type {Object} _headers
+   */
+  this._headers = {
+  };
+
+  /**
    * Used by the cache layer, it can
    * be overriden by child objects.
    *
    * @type {Object} DEFAULT_TTL
    */
   this.DEFAULT_TTL = 300;
+};
+
+/**
+ * Includes HTTP Basic Authentication schema
+ *
+ * @param {String} username
+ * @param {String} password
+ * @method _setBasicAuth
+ * @private
+ * @see https://en.wikipedia.org/wiki/Basic_access_authentication
+ */
+ApiClient.prototype._setBasicAuth = function(username, password) {
+  this._headers['Authorization'] = 'Basic ' + btoa(username + password);
 };
 
 /**
@@ -120,8 +139,13 @@ ApiClient.prototype.GET = function(parameters, cacheKey, onComplete, useHTTPS) {
       requestInterface = https;
     }
 
-    var url = self._getUrl(parameters);
-    requestInterface.request(url, function(response) {
+    var options = {
+      host: this._baseUrl,
+      path: '?' + params.join('&'),
+      headers: this._headers
+    };
+
+    requestInterface.request(options, function(response) {
       self._readResponse(response, cacheKey, onComplete);
     }).end();
 
