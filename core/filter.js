@@ -11,24 +11,12 @@ var Logger = require('./logger');
  *
  * @class Filter
  * @param {String} filterId
- * @param {Object} config
+ * @param {Object} filterSchema
  * @constructor
  * @tests ../test/core/filter.js
  */
-var Filter = function(filterId, config) {
-
-  /**
-   * Mapping between filter id and filter object
-   * @type {Object} enabledFilters
-   */
-  this.enabledFilters = config.enabledFilters;
-
-  if (typeof this.enabledFilters[filterId] === 'undefined') {
-    throw new exception.FilterNotFound('The filter ' + filterId + ' could not be found.');
-  }
-
-  this._filterSchema = require(this.enabledFilters[filterId]);
-
+var Filter = function(filterId, filterSchema) {
+  this._filterSchema = filterSchema;
 };
 
 /**
@@ -108,12 +96,12 @@ Filter.prototype.apply = function(rawData) {
   return result;
 };
 
-module.exports = function(filterId) {
+module.exports = function(filterId, filterSchema) {
 
   // Try to instantiate a filter based on the provided identifier.
   var filter = null;
   try {
-    filter = new Filter(filterId);
+    filter = new Filter(filterId, filterSchema);
   } catch (e) {
     Logger.error('We could not find a filter for ' + filterId);
   }
