@@ -66,16 +66,18 @@ var ApiClient = function() {
  * @see https://en.wikipedia.org/wiki/Basic_access_authentication
  */
 ApiClient.prototype._setBasicAuth = function(username, password) {
-  this._headers['Authorization'] = 'Basic ' + new Buffer(username + password).toString('base64');
+  var authString = username + ':' + password;
+  authString = new Buffer(authString).toString('base64');
+  this._headers['Authorization'] = 'Basic ' + authString;
 };
 
 /**
  * @param {Object} parameters
  * @return {String}
- * @method _getPath
+ * @method _encodeGetParams
  * @private
  */
-ApiClient.prototype._getPath = function(parameters) {
+ApiClient.prototype._encodeGetParams = function(parameters) {
 
   var params = [];
   var addParams = function(paramsMap) {
@@ -89,7 +91,7 @@ ApiClient.prototype._getPath = function(parameters) {
   addParams(this._defaultParameters);
   addParams(parameters);
 
-  return '?' + params.join('&');
+  return params.length > 0 ? '?' + params.join('&') : '';
 };
 
 /**
@@ -117,30 +119,41 @@ ApiClient.prototype._getMCKey = function(prefix, postfix) {
 };
 
 /**
+ * @param {Boolean} useHTTPS
+ * @return {Request}
+ * @private
+ */
+ApiClient.prototype._getRequestInterface = function(useHTTPS) {
+  var requestInterface = http;
+  if (typeof useHTTPS !== 'undefined' && useHTTPS === true) {
+    var https = require('https');
+    requestInterface = https;
+  }
+
+  return requestInterface;
+};
+
+/**
  * Performs a HTTP GET request to a service, with support for caching the result.
  *
  * @method GET
+ * @param {String} method
  * @param {Object} parameters
  * @param {String} cacheKey
  * @param {Function} onComplete
  * @param {Boolean} useHTTPS [Optional] Enables requests via https
  */
-ApiClient.prototype.GET = function(parameters, cacheKey, onComplete, useHTTPS) {
+ApiClient.prototype.GET = function(method, parameters, cacheKey, onComplete, useHTTPS) {
 
   var self = this;
   MemcacheHandler.get(cacheKey).then(function(data) {
     onComplete(false, JSON.parse(data));
   }).catch(function() {
 
-    var requestInterface = http;
-    if (typeof useHTTPS !== 'undefined' && useHTTPS === true) {
-      var https = require('https');
-      requestInterface = https;
-    }
-
+    var requestInterface = self._getRequestInterface(useHTTPS);
     var options = {
       host: self._baseUrl,
-      path: self._getPath(parameters),
+      path: method + self._encodeGetParams(parameters),
       headers: self._headers
     };
 
@@ -210,19 +223,28 @@ ApiClient.prototype._readResponse = function(response, cacheKey, onComplete) {
  * Performs a HTTP POST request to an external API.
  *
  * @method POST
+ * @param {String} method
  * @param {String} message
  * @param {Object} options
  * @param {String} cacheKey
  * @param {Function} onComplete
+ * @param {Boolean} useHTTPS
  */
-ApiClient.prototype.POST = function(message, options, cacheKey, onComplete) {
+ApiClient.prototype.POST = function(method, message, options, cacheKey, onComplete, useHTTPS) {
 
   var self = this;
   MemcacheHandler.get(cacheKey).then(function(data) {
     onComplete(false, JSON.parse(data));
   }).catch(function() {
 
-    http.request(options, function(response) {
+    var options = {
+      host: self._baseUrl,
+      path: method,
+      headers: self._headers
+    };
+
+    var requestInterface = self._getRequestInterface(false);
+    requestInterface.request(options, function(response) {
       self._readResponse(response, cacheKey, onComplete);
     }).write(message).end();
 
