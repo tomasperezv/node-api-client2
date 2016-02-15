@@ -132,9 +132,9 @@ MemcacheHandler.prototype.set = function(key, value, TTL) {
         // It sometimes would be useful to return the value we just
         // set but we are not doing it since it's not required for the
         // context of our basic layer of services.
-        resolve();
+        resolve(value);
       } else {
-        reject();
+        reject(err);
       }
     });
   });
