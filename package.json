@@ -1,5 +1,5 @@
 {
-  "name": "node-api-client2",
+  "name": "@tomasperezv/node-api-client",
   "version": "1.0.0",
   "description": "A node.js library for creating clients for different HTTP API's, it includes a cache layer",
   "main": "./core/api/api-client",
@@ -13,7 +13,7 @@
     "memcache",
     "API"
   ],
-  "author": "Tomás Pérez <tom@0x101.com>",
+  "author": "Tomás Pérez <t@0x101.com>",
   "license": "MIT",
   "dependencies": {
     "expect.js": "^0.3.1",
